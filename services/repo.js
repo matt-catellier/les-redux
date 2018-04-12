@@ -1,4 +1,4 @@
-import { postJSON, getJSON, queryStringify, getPdf } from "./ajax";
+import { postJSON, getJSON, queryStringify } from "./ajax";
 
 export default class Repository {
   constructor(options = {}) {
@@ -36,9 +36,5 @@ export default class Repository {
   execute(modelName, aggregateId, action, data) {
     const instance = aggregateId ? "/" + aggregateId : "";
     return postJSON(`${this._baseUri}${modelName}${instance}/${action}`, data);
-  }
-
-  getPdf(modelName, action, query) {
-    return getPdf(`/api/v1/${modelName}/${action}/${queryStringify(query)}`);
   }
 }

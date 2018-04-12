@@ -3,6 +3,7 @@ var inputfile = __dirname + '/samples/inventory/Emlfile.yaml',
     fs = require('fs'),
     obj = yaml.safeLoad(fs.readFileSync(inputfile, {encoding: 'utf-8'}));
 
+fs.writeFileSync('json.js', JSON.stringify(obj));
 
 String.prototype.toCamelCase = function() {
   return this
@@ -11,15 +12,13 @@ String.prototype.toCamelCase = function() {
     .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
 }
 
-console.log(obj)
-
 const commands = obj.Contexts[0].Streams[0].Commands.map(c =>
   ({
     name: c.Command.Name,
     parameters: c.Command.Parameters.map(p => ({name: p.Name}))
   })
 )
-
+console.log(commands)
 
 const readmodels = obj.Contexts[0].Readmodels.map(r => ({name: r.Readmodel.Name, key: r.Readmodel.Key}))
 console.log(readmodels)
@@ -35,7 +34,8 @@ console.log(fetchOneString)
 fs.writeFileSync('fetchOneApi.js', fetchOneString);
 fs.writeFileSync('fetchAllApi.js', fetchAllString);
 
-const commandFunctions = commands.map((command) => {
+let createString
+const commandFunctions = commands.forEach((command) => {
   let parametersString = ''
   command.parameters.forEach((p,i) => {
     const separator = i !== command.parameters.length - 1 ? " ," : ''
@@ -56,6 +56,7 @@ console.log(commandFunctions)
 fs.writeFileSync('actions.js', commandFunctions);
 
 /* TRYING TO MAKE string for all this
+const createLocationAPI = async (locationName, address) => await workflowController.create("location", {locationName, address})
 const createLocation = async (locationName, address) => {
   try {
     const handledCommand = await createLocationAPI(locationName, address)

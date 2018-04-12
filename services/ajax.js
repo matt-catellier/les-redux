@@ -86,35 +86,6 @@ export function getJSON(url, user, password) {
   });
 }
 
-export function getPdf(url, user, password) {
-  return new Promise((resolve, reject) => {
-    const oReq = new XMLHttpRequest();
-    oReq.withCredentials = true;
-    oReq.open("GET", url, true, user, password);
-    oReq.setRequestHeader("Accept", "application/pdf");
-    oReq.setRequestHeader("Content-Type", "application/pdf");
-    oReq.setRequestHeader("Cache-Control", "no-cache");
-    oReq.onload = function () {
-      if (this.status === 200) {
-        let disposition = oReq.getResponseHeader('content-disposition')
-        let filename = disposition.split("=")[1].replace(/"/g, '') + ".pdf"
-        const blob = new Blob([oReq.response], {type: "image/pdf"})
-        let a = document.createElement("a");
-        a.style = "display: none";
-        document.body.appendChild(a);
-        let url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = filename;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      } else {
-        handleRequestFailure(oReq, reject)
-      }
-    }
-    oReq.send();
-  })
-}
-
 export function queryToFilter(query) {
   return query ? `?filter=${JSON.stringify(query)}` : "";
 }
