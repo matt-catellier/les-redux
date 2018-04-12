@@ -1,19 +1,19 @@
-function createMail(emailId ,fromUserId ,toUserId ,subject ,body) {
+function addVegetableToInventory(vegetableId ,name) {
     return {
-        type : "CREATEMAIL",
-        payload: { emailId ,fromUserId ,toUserId ,subject ,body }
+        type : "ADDVEGETABLETOINVENTORY",
+        payload: { vegetableId ,name }
     }
   }
-  ,function sendMail(emailId) {
+  ,function releaseVegetable(vegetableId ,amount) {
     return {
-        type : "SENDMAIL",
-        payload: { emailId }
+        type : "RELEASEVEGETABLE",
+        payload: { vegetableId ,amount }
     }
   }
-  ,function readMail(emailId ,dateTimeRead) {
+  ,function removeVegetableFromInventroy(vegetableId) {
     return {
-        type : "READMAIL",
-        payload: { emailId ,dateTimeRead }
+        type : "REMOVEVEGETABLEFROMINVENTROY",
+        payload: { vegetableId }
     }
   }
   
