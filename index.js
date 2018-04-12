@@ -1,4 +1,4 @@
-var inputfile = __dirname + '/samples/helloworld/Emlfile.yaml',
+var inputfile = __dirname + '/samples/email/Emlfile.yaml',
     yaml = require('js-yaml'),
     fs = require('fs'),
     obj = yaml.load(fs.readFileSync(inputfile, {encoding: 'utf-8'}));
@@ -41,8 +41,15 @@ const functions = commands.map((command) => {
   `
   return funcString
 })
-console.log(functions)
 
+const reducer = (acc, value) => {
+  let parametersString = ''
+  command.parameters.forEach()
+  return acc + value;
+}
+const functionsString = commands.reduce()
+
+console.log(functions)
 fs.writeFileSync('actions.js', functions);
 // this code if you want to save
 // fs.writeFileSync(outputfile, JSON.stringify(obj, null, 2));
