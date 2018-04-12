@@ -1,59 +1,59 @@
 var inputfile = __dirname + '/samples/inventory/Emlfile.yaml',
     yaml = require('js-yaml'),
     fs = require('fs'),
-    obj = yaml.safeLoad(fs.readFileSync(inputfile, {encoding: 'utf-8'}));
-
-fs.writeFileSync('json.js', JSON.stringify(obj));
+    obj = yaml.safeLoad(fs.readFileSync(inputfile, {encoding: 'utf-8'})),
+    importWorkflowController =
+      `var WorkFlowController = require('./services/workflowController')\nvar workFlowController = new WorkFlowController()\n\n`;
 
 String.prototype.toCamelCase = function() {
   return this
     .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
     .replace(/\s/g, '')
     .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
-}
+};
+String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+const readmodels = obj.Contexts[0].Readmodels.map(r => ({name: r.Readmodel.Name.toCamelCase(), key: r.Readmodel.Key.toCamelCase()}));
+
+let fetchOneString = '';
+let fetchAllString = '';
+readmodels.forEach(rm => {
+  fetchOneString += `const fetch${rm.name}API = async ${rm.key} => await workFlowController.findOne("${rm.name}", {${rm.key}}) \n`;
+  fetchAllString += `const fetchAll${rm.name}API = async () => await workFlowController.findWhere("${rm.name}", {}) \n`;
+});
+fs.writeFileSync('fetchReadmodels.js', importWorkflowController + fetchAllString + fetchOneString);
 
 const commands = obj.Contexts[0].Streams[0].Commands.map(c =>
-  ({
-    name: c.Command.Name,
-    parameters: c.Command.Parameters.map(p => ({name: p.Name}))
+  ({name: c.Command.Name.toCamelCase(), parameters: c.Command.Parameters.map(p => ({name: p.Name.toCamelCase()}))})
+);
+console.log(JSON.stringify(commands));
+
+let commandString = '';
+const streamName = obj.Contexts[0].Streams[0].Stream.toCamelCase();
+commands.forEach(c => {
+  let parameterString = '';
+  c.parameters.forEach((p,i) => {
+    const comma = i === (c.parameters.length - 1) ? '' : ', ';
+    parameterString += p.name.toCamelCase() + comma
   })
-)
-console.log(commands)
-
-const readmodels = obj.Contexts[0].Readmodels.map(r => ({name: r.Readmodel.Name, key: r.Readmodel.Key}))
-console.log(readmodels)
-
-let fetchOneString = ''
-let fetchAllString = ''
-readmodels.forEach((rm, i) => {
-  fetchOneString += `const fetch${rm.name}API = async ${rm.key} => await workflowController.findOne("${rm.name}", {${rm.key}}) \n`
-  fetchAllString += `const fetch${rm.name}API = async () => await workflowController.findWhere("${rm.name}", {}) \n`
-})
-
-console.log(fetchOneString)
-fs.writeFileSync('fetchOneApi.js', fetchOneString);
-fs.writeFileSync('fetchAllApi.js', fetchAllString);
-
-let createString
-const commandFunctions = commands.forEach((command) => {
-  let parametersString = ''
-  command.parameters.forEach((p,i) => {
-    const separator = i !== command.parameters.length - 1 ? " ," : ''
-    parametersString += p.name + separator
-  })
-  const funcString =
-    `function ${command.name.toCamelCase()}(${parametersString}) {
-    return {
-        type : "${command.name.toUpperCase()}",
-        payload: { ${parametersString} }
-    }
+  const idParameter = c.parameters.find(p => p.name.toLowerCase().endsWith('id')).name.toCamelCase();
+  console.log(parameterString);
+  console.log(idParameter);
+  const entity = streamName.capitalize()
+  commandString += `const create${entity}API = async (${parameterString}) => await workFlowController.create("${streamName}", {${parameterString}})
+const create${entity} = async (${parameterString}) => {
+  try {
+    const handledCommand = await create${entity}API(${parameterString})
+    const entity = await fetch${entity}API(handledCommand.${idParameter})
+    return entity
+  } catch (err) {
+    throw(err)
   }
-  `
-  return funcString
-})
-
-console.log(commandFunctions)
-fs.writeFileSync('actions.js', commandFunctions);
+}\n`;
+});
+fs.writeFileSync('createCommands.js', importWorkflowController + commandString);
 
 /* TRYING TO MAKE string for all this
 const createLocationAPI = async (locationName, address) => await workflowController.create("location", {locationName, address})
