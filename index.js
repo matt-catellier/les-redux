@@ -23,7 +23,8 @@ readmodels.forEach(rm => {
   fetchOneString += `const fetch${rm.name}API = async ${rm.key} => await workFlowController.findOne("${rm.name}", {${rm.key}}) \n`;
   fetchAllString += `const fetchAll${rm.name}API = async () => await workFlowController.findWhere("${rm.name}", {}) \n`;
 });
-fs.writeFileSync('fetchReadmodels.js', importWorkflowController + fetchAllString + fetchOneString);
+
+const fetchJS = fetchAllString + '\n' + fetchOneString
 
 const commands = obj.Contexts[0].Streams[0].Commands.map(c =>
   ({name: c.Command.Name.toCamelCase(), parameters: c.Command.Parameters.map(p => ({name: p.Name.toCamelCase()}))})
@@ -53,17 +54,8 @@ const create${entity} = async (${parameterString}) => {
   }
 }\n`;
 });
-fs.writeFileSync('createCommands.js', importWorkflowController + commandString);
+const commandJS = commandString
 
-/* TRYING TO MAKE string for all this
-const createLocationAPI = async (locationName, address) => await workflowController.create("location", {locationName, address})
-const createLocation = async (locationName, address) => {
-  try {
-    const handledCommand = await createLocationAPI(locationName, address)
-    const location = await fetchLocationAPI(handledCommand.locationId)
-    return location
-  } catch (err) {
-    throw(err)
-  }
-}
-*/
+fs.writeFileSync('createCommands.js', importWorkflowController + commandJS);
+fs.writeFileSync('fetchReadmodels.js', importWorkflowController + fetchJS);
+fs.writeFileSync('actions.js', importWorkflowController + fetchJS + "\n" + commandJS);
