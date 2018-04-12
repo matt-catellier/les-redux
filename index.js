@@ -1,7 +1,7 @@
-var inputfile = __dirname + '/samples/veggiesgalore/Emlfile.yaml',
+var inputfile = __dirname + '/samples/inventory/Emlfile.yaml',
     yaml = require('js-yaml'),
     fs = require('fs'),
-    obj = yaml.load(fs.readFileSync(inputfile, {encoding: 'utf-8'}));
+    obj = yaml.safeLoad(fs.readFileSync(inputfile, {encoding: 'utf-8'}));
 
 
 String.prototype.toCamelCase = function() {
@@ -11,13 +11,31 @@ String.prototype.toCamelCase = function() {
     .replace(/^(.)/, function($1) { return $1.toLowerCase(); });
 }
 
-const commands = obj.Contexts[0].Streams[0].Commands.map(command =>
+console.log(obj)
+
+const commands = obj.Contexts[0].Streams[0].Commands.map(c =>
   ({
-    name: command.Command.Name,
-    parameters: command.Command.Parameters.map(p => ({name: p.Name}))
+    name: c.Command.Name,
+    parameters: c.Command.Parameters.map(p => ({name: p.Name}))
   })
 )
-const functions = commands.map((command) => {
+
+
+const readmodels = obj.Contexts[0].Readmodels.map(r => ({name: r.Readmodel.Name, key: r.Readmodel.Key}))
+console.log(readmodels)
+
+let fetchOneString = ''
+let fetchAllString = ''
+readmodels.forEach((rm, i) => {
+  fetchOneString += `const fetch${rm.name}API = async ${rm.key} => await workflowController.findOne("${rm.name}", {${rm.key}}) \n`
+  fetchAllString += `const fetch${rm.name}API = async () => await workflowController.findWhere("${rm.name}", {}) \n`
+})
+
+console.log(fetchOneString)
+fs.writeFileSync('fetchOneApi.js', fetchOneString);
+fs.writeFileSync('fetchAllApi.js', fetchAllString);
+
+const commandFunctions = commands.map((command) => {
   let parametersString = ''
   command.parameters.forEach((p,i) => {
     const separator = i !== command.parameters.length - 1 ? " ," : ''
@@ -34,12 +52,10 @@ const functions = commands.map((command) => {
   return funcString
 })
 
-console.log(functions)
-fs.writeFileSync('actions.js', functions);
+console.log(commandFunctions)
+fs.writeFileSync('actions.js', commandFunctions);
 
 /* TRYING TO MAKE string for all this
-const fetchLocationAPI = async locationId => await workflowController.findOne("location", {locationId})
-const createLocationAPI = async (locationName, address) => await workflowController.create("location", {locationName, address})
 const createLocation = async (locationName, address) => {
   try {
     const handledCommand = await createLocationAPI(locationName, address)
@@ -49,3 +65,4 @@ const createLocation = async (locationName, address) => {
     throw(err)
   }
 }
+*/

@@ -1,19 +1,7 @@
-function addVegetableToInventory(vegetableId ,name) {
+function addProduct(productId ,name) {
     return {
-        type : "ADDVEGETABLETOINVENTORY",
-        payload: { vegetableId ,name }
-    }
-  }
-  ,function releaseVegetable(vegetableId ,amount) {
-    return {
-        type : "RELEASEVEGETABLE",
-        payload: { vegetableId ,amount }
-    }
-  }
-  ,function removeVegetableFromInventroy(vegetableId) {
-    return {
-        type : "REMOVEVEGETABLEFROMINVENTROY",
-        payload: { vegetableId }
+        type : "ADDPRODUCT",
+        payload: { productId ,name }
     }
   }
   

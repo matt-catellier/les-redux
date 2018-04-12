@@ -1,0 +1,5 @@
+const fetchProductLookupAPI = async productId => await workflowController.findOne("ProductLookup", {productId}) 
+const fetchInventoryitemLookupAPI = async inventoryitemId => await workflowController.findOne("InventoryitemLookup", {inventoryitemId}) 
+const fetchCatalogueitemLookupAPI = async catalogueitemId => await workflowController.findOne("CatalogueitemLookup", {catalogueitemId}) 
+const fetchOrderLookupAPI = async orderId => await workflowController.findOne("OrderLookup", {orderId}) 
+const fetchOrderItemLookupAPI = async orderitemId => await workflowController.findOne("OrderItemLookup", {orderitemId}) 
