@@ -23,6 +23,7 @@ export default class WorkFlowController {
       modelName,
       aggregateId,
       action,
+      data,
     );
   }
 
