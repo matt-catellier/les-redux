@@ -11,7 +11,11 @@ const generateApi = (inputFile, outputFileName) => {
     const readModels = obj.Contexts[0].Readmodels.map(r => ({name: r.Readmodel.Name, key: r.Readmodel.Key}));
     const fetchJS = getFetchString(readModels);
 
-    const allCommands = obj.Contexts[0].Streams.map(s => s.Commands.map(c => ({streamName: s.Stream, commandName: c.Command.Name, commandParameters: c.Command.Parameters.map(p => ({ name: p.Name }))}))[0]);
+    const allCommands = obj.Contexts[0].Streams.map(s => s.Commands.map(c => ({
+      streamName: s.Stream,
+      commandName: c.Command.Name,
+      commandParameters: c.Command.Parameters.map(p => ({name: p.Name}))
+    })));
     const postJS = getPostString(allCommands);
     const dir = './output/';
     fs.readdir(dir, (err, files) => {
@@ -36,16 +40,18 @@ const getFetchString = readModels => {
 };
 
 const getPostString = commands => {
+  console.log(commands)
   let allCommandString = '';
-  commands.forEach(c => {
-    let parameterString = '';
-    c.commandParameters.forEach((p,i) => {
-      const comma = i === (c.commandParameters.length - 1) ? '' : ', ';
-      parameterString += p.name + comma
-    });
-    const idParameter = c.commandParameters.find(p => p.name.toLowerCase().endsWith('id')).name;
-    // modelName, aggregateId, action, data
-    allCommandString += `const ${c.commandName}API = async (${parameterString}) => await workFlowController.execute("${c.streamName}", "","${c.commandName}",{${parameterString}})
+  commands.forEach(stream => {
+    stream.forEach(c => {
+      let parameterString = '';
+      c.commandParameters.forEach((p, i) => {
+        const comma = i === (c.commandParameters.length - 1) ? '' : ', ';
+        parameterString += p.name + comma
+      });
+      const idParameter = c.commandParameters.find(p => p.name.toLowerCase().endsWith('id')).name;
+      // modelName, aggregateId, action, data
+      allCommandString += `const ${c.commandName}API = async (${parameterString}) => await workFlowController.execute("${c.streamName}", "","${c.commandName}",{${parameterString}})
 const ${c.commandName} = async (${parameterString}) => {
   try {
     const handledCommand = await ${c.commandName}${c.streamName}API(${parameterString})
@@ -55,6 +61,7 @@ const ${c.commandName} = async (${parameterString}) => {
     throw(err)
   }
 }\n\n`;
+    })
   });
   return allCommandString;
 };
