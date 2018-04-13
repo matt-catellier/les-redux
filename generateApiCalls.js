@@ -44,16 +44,17 @@ const getPostString = commands => {
       parameterString += p.name + comma
     });
     const idParameter = c.commandParameters.find(p => p.name.toLowerCase().endsWith('id')).name;
-    allCommandString += `const create${c.streamName}API = async (${parameterString}) => await workFlowController.create("${c.streamName}", {${parameterString}})
-const create${c.streamName} = async (${parameterString}) => {
+    // modelName, aggregateId, action, data
+    allCommandString += `const ${c.commandName}API = async (${parameterString}) => await workFlowController.execute("${c.streamName}", "","${c.commandName}",{${parameterString}})
+const ${c.commandName} = async (${parameterString}) => {
   try {
-    const handledCommand = await create${c.streamName}API(${parameterString})
+    const handledCommand = await ${c.commandName}${c.streamName}API(${parameterString})
     const ${c.streamName} = await fetch${c.streamName}API(handledCommand.${idParameter})
     return ${c.streamName}
   } catch (err) {
     throw(err)
   }
-}\n`;
+}\n\n`;
   });
   return allCommandString;
 };
