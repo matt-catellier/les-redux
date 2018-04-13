@@ -14,5 +14,5 @@ const resetOutput = () => {
   });
 };
 
-module.exports = resetOutput
+module.exports = resetOutput;
 

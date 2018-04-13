@@ -1,7 +1,7 @@
 const yaml = require('js-yaml');
 const fs = require('fs');
 
-const generateApi = (inputFile) => {
+const generateApi = (inputFile, outputFileName) => {
   console.log(`Started generating apiCalls.js from ${inputFile}`);
   try {
     const obj = yaml.safeLoad(fs.readFileSync(inputFile, {encoding: 'utf-8'}))
@@ -45,7 +45,7 @@ const create${c.streamName} = async (${parameterString}) => {
     const postJS = getPostString(allCommands);
     const dir = './output/';
     fs.readdir(dir, (err, files) => {
-      const outputFile = `./output/apiCalls${files.length + 1}.js`;
+      const outputFile = `./output/${outputFileName}ApiCalls${files.length + 1}.js`;
       fs.writeFileSync(outputFile, workFlowControllerString + fetchJS + "\n" + postJS);
       console.log(`Success. See ${outputFile}`);
     });
