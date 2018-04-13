@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const resetOutput = () => {
-  const directory = './output'
+const clearOutput = () => {
+  const directory = __dirname + '/output'
   fs.readdir(directory, (err, files) => {
     if (err) throw err;
 
@@ -14,5 +14,5 @@ const resetOutput = () => {
   });
 };
 
-module.exports = resetOutput;
+module.exports = clearOutput;
 
