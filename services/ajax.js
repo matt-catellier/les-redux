@@ -1,4 +1,5 @@
-import _ from "lodash";
+const _ = require("lodash");
+const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 function safeParseJSON(json) {
   try {
@@ -10,7 +11,7 @@ function safeParseJSON(json) {
 
 class RequestError extends Error {
   constructor(name, message) {
-    super(message);
+    super();
     this.name = name;
     this.message = message;
   }
@@ -28,6 +29,9 @@ function getErrorNameFromRequestStatus(xhr) {
 }
 
 function handleRequestFailure(req, reject) {
+  if(req.statusText.code === "ECONNREFUSED") {
+    return reject(new RequestError(req.statusText.code, [{msg: "DOH. API IS NOT RUNNING!!!"}]));
+  }
   const response = safeParseJSON(req.responseText);
   const errorName = getErrorNameFromRequestStatus(req);
 
@@ -36,7 +40,7 @@ function handleRequestFailure(req, reject) {
   }
 
   const message = (response && response.message) || "N/A";
-  reject(new RequestError(errorName, [{msg: message}]));
+  return reject(new RequestError(errorName, [{msg: message}]));
 }
 
 function handleRequestSuccess(oReq, resolve, reject) {
@@ -50,7 +54,7 @@ function handleRequestSuccess(oReq, resolve, reject) {
 }
 
 function handleStateChange(oReq, resolve, reject) {
-  if (oReq.readyState !== XMLHttpRequest.DONE) {
+  if (oReq.readyState !== 4) {
     return;
   }
   if (oReq.status >= 200 && oReq.status < 300) {
@@ -59,7 +63,7 @@ function handleStateChange(oReq, resolve, reject) {
   handleRequestFailure(oReq, reject);
 }
 
-export function postJSON(url, data) {
+function postJSON(url, data) {
   return new Promise((resolve, reject) => {
     const oReq = new XMLHttpRequest();
     oReq.withCredentials = true;
@@ -73,7 +77,7 @@ export function postJSON(url, data) {
   });
 }
 
-export function getJSON(url, user, password) {
+const getJSON = (url, user, password) => {
   return new Promise((resolve, reject) => {
     const oReq = new XMLHttpRequest();
     oReq.withCredentials = true;
@@ -86,11 +90,11 @@ export function getJSON(url, user, password) {
   });
 }
 
-export function queryToFilter(query) {
+const queryToFilter = (query) => {
   return query ? `?filter=${JSON.stringify(query)}` : "";
 }
 
-export function queryStringify(query) {
+const queryStringify = (query) => {
   if (!query) return "";
   return Object.getOwnPropertyNames(query).reduce((qs, key) => {
     const sep = qs.length === 0 ? "?" : "&";
@@ -99,4 +103,11 @@ export function queryStringify(query) {
       : query[key];
     return `${qs}${sep}${key}=${value}`;
   }, "");
+}
+
+module.exports = {
+  postJSON,
+  getJSON,
+  queryToFilter,
+  queryStringify
 }

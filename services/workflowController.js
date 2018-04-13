@@ -1,5 +1,5 @@
-import Repository from "./repo";
-export default class WorkFlowController {
+const Repository = require("./repo");
+class WorkFlowController {
   constructor() {
     this.repo = new Repository();
   }
@@ -31,3 +31,4 @@ export default class WorkFlowController {
     return { where: query, limit: 500 };
   }
 }
+module.exports = WorkFlowController

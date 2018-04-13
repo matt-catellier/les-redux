@@ -1,6 +1,6 @@
-import { postJSON, getJSON, queryStringify } from "./ajax";
+const { postJSON, getJSON, queryStringify } = require("./ajax")
 
-export default class Repository {
+class Repository {
   constructor(options = {}) {
     const { noReadGenericApi, credentials } = options;
     this._baseUri = noReadGenericApi ? "/api/v1/" : "/api/v1/r/";
@@ -37,3 +37,5 @@ export default class Repository {
     return postJSON(`${this._baseUri}${modelName}/${action}`, data);
   }
 }
+
+module.exports = Repository;
