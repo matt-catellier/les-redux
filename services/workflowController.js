@@ -1,7 +1,7 @@
 const Repository = require("./repo");
 class WorkFlowController {
-  constructor() {
-    this.repo = new Repository();
+  constructor(url) {
+    this.repo = new Repository(url ? {url} : '');
   }
 
   findWhere(modelName, query) {

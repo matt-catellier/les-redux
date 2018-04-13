@@ -2,8 +2,8 @@ const { postJSON, getJSON, queryStringify } = require("./ajax")
 
 class Repository {
   constructor(options = {}) {
-    const { noReadGenericApi, credentials } = options;
-    this._baseUri = noReadGenericApi ? "/api/v1/" : "/api/v1/r/";
+    const { noReadGenericApi, credentials, url } = options;
+    this._baseUri = `${url ? url : ''}${noReadGenericApi ? "/api/v1/" : "/api/v1/r/"}`;
     this._credentials = credentials || {};
   }
 
@@ -18,6 +18,7 @@ class Repository {
     } else if(query && !query.filter) {
       query = { filter: query || {} }
     }
+    console.log(`${this._baseUri}${modelName}${queryStringify(query)}`)
     return getJSON(
       `${this._baseUri}${modelName}${queryStringify(query)}`,
       this._credentials.user,

@@ -29,7 +29,7 @@ function getErrorNameFromRequestStatus(xhr) {
 }
 
 function handleRequestFailure(req, reject) {
-  if(req.statusText.code === "ECONNREFUSED") {
+  if(req.statusText && req.statusText.code === "ECONNREFUSED") {
     return reject(new RequestError(req.statusText.code, [{msg: "DOH. API IS NOT RUNNING!!!"}]));
   }
   const response = safeParseJSON(req.responseText);
@@ -50,7 +50,7 @@ function handleRequestSuccess(oReq, resolve, reject) {
   if (typeof oReq.response === "object") {
     return resolve(oReq.response);
   }
-  reject(new Error("Wrong return type."));
+  return reject(new Error("Wrong return type."));
 }
 
 function handleStateChange(oReq, resolve, reject) {
@@ -58,7 +58,7 @@ function handleStateChange(oReq, resolve, reject) {
     return;
   }
   if (oReq.status >= 200 && oReq.status < 300) {
-    return handleRequestSuccess(oReq, resolve);
+    return handleRequestSuccess(oReq, resolve, reject);
   }
   handleRequestFailure(oReq, reject);
 }

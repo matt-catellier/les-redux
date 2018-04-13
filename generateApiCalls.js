@@ -6,7 +6,7 @@ const generateApi = (inputFile, outputFileName) => {
   console.log(`Started generating apiCalls.js from ${inputFile}`);
   try {
     const obj = yaml.safeLoad(fs.readFileSync(inputFile, {encoding: 'utf-8'}))
-    const workFlowControllerString = `var WorkFlowController = require('./services/workflowController')\nvar workFlowController = new WorkFlowController()\n\n`;
+    const workFlowControllerString = `var WorkFlowController = require('./services/workflowController')\nvar workFlowController = new WorkFlowController("http://localhost:3001")\n\n`;
 
     const readModels = obj.Contexts[0].Readmodels.map(r => ({name: r.Readmodel.Name, key: r.Readmodel.Key}));
     const fetchJS = getFetchString(readModels);
