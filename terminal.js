@@ -4,6 +4,7 @@ const generateApiCalls = require('./generateApiCalls');
 
 program
   .version('0.1.0', '-v, --version')
+  .description('Create file with all api calls based on eml')
 
 program
   .command('api-calls <file>')
