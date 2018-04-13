@@ -17,12 +17,9 @@ const generateApi = (inputFile, outputFileName) => {
       commandParameters: c.Command.Parameters.map(p => ({name: p.Name}))
     })));
     const postJS = getPostString(allCommands);
-    const dir = './output/';
-    fs.readdir(dir, (err, files) => {
-      const outputFile = `./output/${outputFileName}${files.length + 1}.js`;
-      fs.writeFileSync(outputFile, workFlowControllerString + fetchJS + "\n" + postJS);
-      console.log(`Success. See ${outputFile}`);
-    });
+    const outputFile = `./output/${outputFileName}.js`;
+    fs.writeFileSync(outputFile, workFlowControllerString + fetchJS + "\n" + postJS);
+    console.log(`Success. See ${outputFile}`);
   } catch (err) {
     console.log('Oops. Something went wrong.');
     console.log(err);
@@ -49,7 +46,6 @@ const getPostString = commands => {
         parameterString += p.name + comma
       });
       const idParameter = c.commandParameters.find(p => p.name.toLowerCase().endsWith('id')).name;
-      // modelName, aggregateId, action, data
       allCommandString += `const ${c.commandName}API = async (${parameterString}) => await workFlowController.execute("${c.streamName}","${c.commandName}",{${parameterString}})
 const ${c.commandName} = async (${parameterString}) => {
   try {
