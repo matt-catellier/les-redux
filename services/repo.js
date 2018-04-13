@@ -33,8 +33,7 @@ export default class Repository {
     return this.execute(modelName, null, "create", data);
   }
 
-  execute(modelName, aggregateId, action, data) {
-    const instance = aggregateId ? "/" + aggregateId : "";
-    return postJSON(`${this._baseUri}${modelName}${instance}/${action}`, data);
+  execute(modelName, action, data) {
+    return postJSON(`${this._baseUri}${modelName}/${action}`, data);
   }
 }

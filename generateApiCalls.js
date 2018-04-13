@@ -40,7 +40,6 @@ const getFetchString = readModels => {
 };
 
 const getPostString = commands => {
-  console.log(commands)
   let allCommandString = '';
   commands.forEach(stream => {
     stream.forEach(c => {
@@ -51,7 +50,7 @@ const getPostString = commands => {
       });
       const idParameter = c.commandParameters.find(p => p.name.toLowerCase().endsWith('id')).name;
       // modelName, aggregateId, action, data
-      allCommandString += `const ${c.commandName}API = async (${parameterString}) => await workFlowController.execute("${c.streamName}", "","${c.commandName}",{${parameterString}})
+      allCommandString += `const ${c.commandName}API = async (${parameterString}) => await workFlowController.execute("${c.streamName}","${c.commandName}",{${parameterString}})
 const ${c.commandName} = async (${parameterString}) => {
   try {
     const handledCommand = await ${c.commandName}${c.streamName}API(${parameterString})

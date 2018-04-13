@@ -18,10 +18,9 @@ export default class WorkFlowController {
     );
   }
 
-  execute(modelName, aggregateId, action, data) {
+  execute(modelName, action, data) {
     return this.repo.execute(
       modelName,
-      aggregateId,
       action,
       data,
     );
