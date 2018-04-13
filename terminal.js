@@ -7,11 +7,13 @@ program
   .description('Create file with all api calls based on eml')
 
 program
-  .command('api-calls <file>')
+  .command('api-calls <file> <name>')
+  .description('Generate js to make all api calls')
+  .option('-n --name', 'Output filename')
   .description('Create js file with all api calls')
   .parse(process.argv)
-  .action(file => {
-    generateApiCalls(file)
+  .action((file, name) => {
+    generateApiCalls(file, name)
   })
 
 program.parse(process.argv);

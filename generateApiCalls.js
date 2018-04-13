@@ -15,7 +15,7 @@ const generateApi = (inputFile, outputFileName) => {
     const postJS = getPostString(allCommands);
     const dir = './output/';
     fs.readdir(dir, (err, files) => {
-      const outputFile = `./output/${outputFileName}ApiCalls${files.length + 1}.js`;
+      const outputFile = `./output/${outputFileName}${files.length + 1}.js`;
       fs.writeFileSync(outputFile, workFlowControllerString + fetchJS + "\n" + postJS);
       console.log(`Success. See ${outputFile}`);
     });
