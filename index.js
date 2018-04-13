@@ -16,46 +16,41 @@ String.prototype.capitalize = function() {
 };
 
 const readmodels = obj.Contexts[0].Readmodels.map(r => ({name: r.Readmodel.Name.toCamelCase(), key: r.Readmodel.Key.toCamelCase()}));
+const getFetchString = readmodels => {
+  let fetchOneString = '';
+  let fetchAllString = '';
+  readmodels.forEach(rm => {
+    fetchOneString += `const fetch${rm.name.toCamelCase()}API = async ${rm.key.toCamelCase()} => await workFlowController.findOne("${rm.name.toCamelCase()}", {${rm.key.toCamelCase()}}) \n`;
+    fetchAllString += `const fetchAll${rm.name.toCamelCase()}API = async () => await workFlowController.findWhere("${rm.name.toCamelCase()}", {}) \n`;
+  });
+  return fetchAllString + '\n' + fetchOneString
+};
 
-let fetchOneString = '';
-let fetchAllString = '';
-readmodels.forEach(rm => {
-  fetchOneString += `const fetch${rm.name}API = async ${rm.key} => await workFlowController.findOne("${rm.name}", {${rm.key}}) \n`;
-  fetchAllString += `const fetchAll${rm.name}API = async () => await workFlowController.findWhere("${rm.name}", {}) \n`;
-});
+const fetchJS = getFetchString(readmodels);
 
-const fetchJS = fetchAllString + '\n' + fetchOneString
-
-const commands = obj.Contexts[0].Streams[0].Commands.map(c =>
-  ({name: c.Command.Name.toCamelCase(), parameters: c.Command.Parameters.map(p => ({name: p.Name.toCamelCase()}))})
-);
-console.log(JSON.stringify(commands));
-
-let commandString = '';
-const streamName = obj.Contexts[0].Streams[0].Stream.toCamelCase();
-commands.forEach(c => {
-  let parameterString = '';
-  c.parameters.forEach((p,i) => {
-    const comma = i === (c.parameters.length - 1) ? '' : ', ';
-    parameterString += p.name.toCamelCase() + comma
-  })
-  const idParameter = c.parameters.find(p => p.name.toLowerCase().endsWith('id')).name.toCamelCase();
-  console.log(parameterString);
-  console.log(idParameter);
-  const entity = streamName.capitalize()
-  commandString += `const create${entity}API = async (${parameterString}) => await workFlowController.create("${streamName}", {${parameterString}})
-const create${entity} = async (${parameterString}) => {
+const allCommands = obj.Contexts[0].Streams.map(s => s.Commands.map(c => ({streamName: s.Stream, commandName: c.Command.Name.toCamelCase(), commandParameters: c.Command.Parameters.map(p => ({name: p.Name.toCamelCase()}))}))[0]);
+const getPostString = commands => {
+  let allCommandString = '';
+  commands.forEach(c => {
+    let parameterString = '';
+    c.commandParameters.forEach((p,i) => {
+      const comma = i === (c.commandParameters.length - 1) ? '' : ', ';
+      parameterString += p.name.toCamelCase() + comma
+    });
+    const idParameter = c.commandParameters.find(p => p.name.toLowerCase().endsWith('id')).name.toCamelCase();
+    allCommandString += `const create${c.streamName}API = async (${parameterString}) => await workFlowController.create("${c.streamName}", {${parameterString}})
+const create${c.streamName} = async (${parameterString}) => {
   try {
-    const handledCommand = await create${entity}API(${parameterString})
-    const entity = await fetch${entity}API(handledCommand.${idParameter})
-    return entity
+    const handledCommand = await create${c.streamName}API(${parameterString})
+    const ${c.streamName.toCamelCase()} = await fetch${c.streamName}API(handledCommand.${idParameter})
+    return ${c.streamName.toCamelCase()}
   } catch (err) {
     throw(err)
   }
 }\n`;
-});
-const commandJS = commandString
+  });
+  return allCommandString
+};
 
-fs.writeFileSync('createCommands.js', importWorkflowController + commandJS);
-fs.writeFileSync('fetchReadmodels.js', importWorkflowController + fetchJS);
-fs.writeFileSync('actions.js', importWorkflowController + fetchJS + "\n" + commandJS);
+const postJS = getPostString(allCommands);
+fs.writeFileSync('apiCalls.js', importWorkflowController + fetchJS + "\n" + postJS);

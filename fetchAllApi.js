@@ -1,5 +1,0 @@
-const fetchProductLookupAPI = async () => await workflowController.findWhere("ProductLookup", {}) 
-const fetchInventoryitemLookupAPI = async () => await workflowController.findWhere("InventoryitemLookup", {}) 
-const fetchCatalogueitemLookupAPI = async () => await workflowController.findWhere("CatalogueitemLookup", {}) 
-const fetchOrderLookupAPI = async () => await workflowController.findWhere("OrderLookup", {}) 
-const fetchOrderItemLookupAPI = async () => await workflowController.findWhere("OrderItemLookup", {}) 
